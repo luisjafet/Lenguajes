@@ -3,7 +3,7 @@
 %}
 
 %%
-command : expr '\n' { printf(“El resultado es: %d\n”, $1); }
+command : expr '\n' { printf("El resultado es: %d\n", $1); }
 		;
 
 expr: expr '+' term { $$ = $1 + $3; }
@@ -50,5 +50,5 @@ int yvlex(void) {
 }
 
 int yyerror(char *s) { /* Permite imprimir mensajes de error */
-	printf(”%s\n”,s);
+	printf("%s\n",s);
 }
