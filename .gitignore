@@ -1,6 +1,7 @@
 /presentaciones
 # Object files
 *.o
+*.c
 *.ko
 *.obj
 *.elf
