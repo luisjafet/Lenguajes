@@ -1,3 +1,3 @@
 yacc -d calc.y
 lex calc.l
-gcc y.tab.c lex.yy.c
+gcc y.tab.c lex.yy.c -lm

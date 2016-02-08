@@ -1,28 +1,35 @@
 %{
 #include <stdio.h>
+#include <math.h>
 %}
 
 %union {
-	int ival;
+	double val;
 };
-%token <ival> NUMBER;
-%type <ival> command term expr factor;
+
+%token SIN RAD;
+%token <val> NUMBER;
+%type <val> command term expr factor;
 
 %%
-command : expr '\n' { printf("El resultado es: %d\n", $1); }
+command : expr '\n' { printf("El resultado es: %f\n", $1); }
 		;
 
-expr: expr '+' term { $$ = $1 + $3; }
-	| term { $$ = $1; }
-	;
 
-term: term '*' factor { $$ = $1 * $3; }
-	| factor { $$ = $1; }
-	;
+expr	: expr '+' term { $$ = $1 + $3; }
+		| term { $$ = $1; }
+		| expr '/' term { $$ = $1 / $3; }
+		| SIN '(' expr ')' { $$ = sin($3 * M_PI / 180); }
+		| RAD expr { $$ = $2 * M_PI / 180; }
+		;
 
-factor: NUMBER { $$ = $1; }
-	| '(' expr ')' { $$ = $2; }
-	;
+term	: term '*' factor { $$ = $1 * $3; }
+		| factor { $$ = $1; }
+		;
+
+factor	: NUMBER { $$ = $1; }
+		| '(' expr ')' { $$ = $2; }
+		;
 
 	
 %%
@@ -32,7 +39,7 @@ main() {
 	return 0;
 }
 
-int yvlex(void) {
+int yvlex(void){
 	static int done = 0; /* bandera para detener el análisis*/
 	int c;
 	if (done) return 0; /* detiene el análisis */
@@ -41,7 +48,7 @@ int yvlex(void) {
 	return c;
 }
 
-int yyerror(char *s) { /* Permite imprimir mensajes de error */
+int yyerror(char *s){ /* Permite imprimir mensajes de error */
 	printf("%s\n",s);
 }
 
