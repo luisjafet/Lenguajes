@@ -13,7 +13,7 @@
 									return NUMBER;
 								}
 
-[\(\)/+\-*\n]						{
+[\(\)/+\-*\n!]						{
 									return yytext[0];
 								}
 
@@ -58,9 +58,6 @@ atan							{
 									return ATAN;
 								}	
 
-!								{
-									return FACT;
-								}	
 
 rad								{
 									return RAD;

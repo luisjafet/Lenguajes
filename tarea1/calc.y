@@ -16,12 +16,21 @@ double deg_mult = 180 / M_PI;
 
 
 
-%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG FACT POW MOD LOG;
+%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG;
 %token <val> NUMBER PI;
 %type <val> command expr;
+%left '+' '-'
+%left '*' '/'
+%left POW FACT
+
+
 
 %%
-command : expr '\n' { printf("El resultado es: %f\n", $1); return 0; }
+
+programs : programs command
+		| command
+
+command : expr '\n' { printf("El resultado es: %f\n", $1);}
 		;
 
 
@@ -38,74 +47,74 @@ expr	: 	NUMBER { $$ = $1; }
                                 	}
                               	$$=$1/$3; }
 		//| expr { $$ = $1; }
-		| '(' expr ')' POW '(' expr ')' { $$ = pow($2, $6); }
-		| '(' expr ')' MOD '(' expr ')' { $$ = fmodf($2, $6); }
-		| '(' expr ')' FACT { $$ = tgamma($2 + 1); }
-		| LOG '(' expr ')' { $$ = log($3); }
+		| expr POW  expr  { $$ = pow($1, $3); }
+		| expr  MOD  expr  { $$ = fmodf($1, $3); }
+		|  expr  '!' { $$ = tgamma($1 + 1); }
+		| LOG expr { $$ = log($2); }
 		| RAD { rad = 1; }
 		| DEG { rad = 0; }
-		| SIN '(' expr ')'{
+		| SIN expr{
 						if(rad){
-							$$ = sin(rad_mult * $3);
+							$$ = sin(rad_mult * $2);
 						}else{
-							$$ = sin(deg_mult * $3);
+							$$ = sin(deg_mult * $2);
 						}
 					}
-		| COS '(' expr ')'{
+		| COS expr {
 						if(rad){
-							$$ = cos(rad_mult * $3);
+							$$ = cos(rad_mult * $2);
 						}else{
-							$$ = cos(deg_mult * $3);
+							$$ = cos(deg_mult * $2);
 						}
 					}
-		| TAN '(' expr ')'{
+		| TAN expr{
 						if(rad){
-							$$ = tan(rad_mult * $3);
+							$$ = tan(rad_mult * $2);
 						}else{
-							$$ = tan(deg_mult * $3);
+							$$ = tan(deg_mult * $2);
 						}
 					}
 
-		| COT '(' expr ')'{
+		| COT expr {
 						if(rad){
-							$$ = 1/tan(rad_mult * $3);
+							$$ = 1/tan(rad_mult * $2);
 						}else{
-							$$ = 1/tan(deg_mult * $3);
+							$$ = 1/tan(deg_mult * $2);
 						}
 					}
-		| SEC '(' expr ')'{
+		| SEC expr {
 						if(rad){
-							$$ = 1/cos(rad_mult * $3);
+							$$ = 1/cos(rad_mult * $2);
 						}else{
-							$$ = 1/cos(deg_mult * $3);
+							$$ = 1/cos(deg_mult * $2);
 						}
 					}
-		| CSC '(' expr ')'{
+		| CSC expr {
 						if(rad){
-							$$ = 1/sin(rad_mult * $3);
+							$$ = 1/sin(rad_mult * $2);
 						}else{
-							$$ = 1/sin(deg_mult * $3);
+							$$ = 1/sin(deg_mult * $2);
 						}
 					}
-		| ASIN '(' expr ')'{
+		| ASIN expr{
 						if(rad){
-							$$ = asin(rad_mult * $3);
+							$$ = asin(rad_mult * $2);
 						}else{
-							$$ = asin(deg_mult * $3);
+							$$ = asin(deg_mult * $2);
 						}
 					}
-		| ACOS '(' expr ')'{
+		| ACOS expr{
 						if(rad){
-							$$ = acos(rad_mult * $3);
+							$$ = acos(rad_mult * $2);
 						}else{
-							$$ = acos(deg_mult * $3);
+							$$ = acos(deg_mult * $2);
 						}
 					}
-		| ATAN '(' expr ')'{
+		| ATAN expr{
 						if(rad){
-							$$ = atan(rad_mult * $3);
+							$$ = atan(rad_mult * $2);
 						}else{
-							$$ = atan(deg_mult * $3);
+							$$ = atan(deg_mult * $2);
 						}
 					}
 		;
