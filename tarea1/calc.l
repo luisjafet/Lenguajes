@@ -77,6 +77,10 @@ mod								{
 
 log								{
 									return LOG;
+								}
+
+ln								{
+									return LN;
 								}														
 
 %%

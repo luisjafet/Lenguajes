@@ -16,7 +16,7 @@ double deg_mult = 180 / M_PI;
 
 
 
-%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG;
+%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN;
 %token <val> NUMBER PI;
 %type <val> command expr;
 %left '+' '-'
@@ -50,7 +50,8 @@ expr	: 	NUMBER { $$ = $1; }
 		| expr POW  expr  { $$ = pow($1, $3); }
 		| expr  MOD  expr  { $$ = fmodf($1, $3); }
 		|  expr  '!' { $$ = tgamma($1 + 1); }
-		| LOG expr { $$ = log($2); }
+		| LOG expr { $$ = log10($2); }
+		| LN expr { $$ = log($2); }
 		| RAD { rad = 1; printf("Radianes \n"); }
 		| DEG { rad = 0; printf("Grados \n"); }
 		| SIN expr{
