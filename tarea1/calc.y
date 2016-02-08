@@ -30,7 +30,7 @@ double deg_mult = 180 / M_PI;
 programs : programs command
 		| command
 
-command : expr '\n' { printf("El resultado es: %f\n", $1);}
+command : expr '\n' {printf("El resultado es: %f\n", $1);}
 		;
 
 
@@ -51,8 +51,8 @@ expr	: 	NUMBER { $$ = $1; }
 		| expr  MOD  expr  { $$ = fmodf($1, $3); }
 		|  expr  '!' { $$ = tgamma($1 + 1); }
 		| LOG expr { $$ = log($2); }
-		| RAD { rad = 1; }
-		| DEG { rad = 0; }
+		| RAD { rad = 1; printf("Radianes \n"); }
+		| DEG { rad = 0; printf("Grados \n"); }
 		| SIN expr{
 						if(rad){
 							$$ = sin(rad_mult * $2);
