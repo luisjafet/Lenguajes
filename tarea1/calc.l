@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "y.tab.h"
 %}
 
@@ -12,15 +13,73 @@
 									return NUMBER;
 								}
 
-[\(\)/+*\n]						{
+[\(\)/+\-*\n]						{
 									return yytext[0];
+								}
+
+pi								{
+									yylval.val = M_PI;
+									return PI;
 								}
 
 sin								{
 									return SIN;
+								}										
+
+cos								{
+									return COS;
 								}
+
+tan								{
+									return TAN;
+								}	
+
+cot								{
+									return COT;
+								}
+
+sec								{
+									return SEC;
+								}
+
+csc								{
+									return CSC;
+								}																
+
+asin							{
+									return ASIN;
+								}										
+
+acos							{
+									return ACOS;
+								}
+
+atan							{
+									return ATAN;
+								}	
+
+!								{
+									return FACT;
+								}	
 
 to_rad							{
 									return RAD;
 								}
+
+to_deg							{
+									return GRAD;
+								}								
+
+\^								{
+									return POW;
+								}								
+
+mod								{
+									return MOD;
+								}					
+
+log								{
+									return LOG;
+								}														
+
 %%
