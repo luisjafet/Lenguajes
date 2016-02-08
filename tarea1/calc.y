@@ -10,35 +10,29 @@
 
 %token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD GRAD FACT POW MOD LOG;
 %token <val> NUMBER PI;
-%type <val> command term expr factor;
+%type <val> command expr;
 
 %%
 command : expr '\n' { printf("El resultado es: %f\n", $1); }
 		;
 
 
-expr	: expr '+' term { $$ = $1 + $3; }
-		| expr '-' term { $$ = $1 - $3; }
-		| term { $$ = $1; }
-		| expr POW term { $$ = pow($1, $3); }
-		| expr MOD term { $$ = fmodf($1, $3); }
-		;
-
-term	: term '*' factor { $$ = $1 * $3; }
-		| term '/' factor  {
+expr	: NUMBER { $$ = $1; }
+		| '(' expr ')' { $$ = $2; }
+		| PI { $$ = $1; }
+		| '-' expr {$$ = -$2;}
+		| expr '+' expr { $$ = $1 + $3; }
+		| expr '-' expr { $$ = $1 - $3; }
+		| expr '*' expr { $$ = $1 * $3; }
+		| expr '/' expr  {
                                if($3==0)
                                {
                                        printf("¡ERROR! División entre cero no definida\n");
                                }
-                               $$=$1/$3;
-                       }
-		| factor { $$ = $1; }
-		;
-
-factor	: NUMBER { $$ = $1; }
-		| '(' expr ')' { $$ = $2; }
-		| PI { $$ = $1; }
-		| '-' expr {$$ = -$2;}
+                               $$=$1/$3; }
+		| expr { $$ = $1; }
+		| expr POW expr { $$ = pow($1, $3); }
+		| expr MOD expr { $$ = fmodf($1, $3); }
 		| SIN '(' expr ')' { $$ = sin($3 * M_PI / 180); }
 		| COS '(' expr ')' { $$ = cos($3 * M_PI / 180); }
 		| TAN '(' expr ')' { $$ = tan($3 * M_PI / 180); }
@@ -53,7 +47,6 @@ factor	: NUMBER { $$ = $1; }
 		| expr FACT { $$ = tgamma($1 + 1); }
 		| LOG expr { $$ = log($2); }
 		;
-
 	
 %%
 
