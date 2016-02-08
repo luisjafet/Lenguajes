@@ -2,15 +2,18 @@
 #include <stdio.h>
 #include <math.h>
 #include <tgmath.h>
+
+int rad = 1;
+double rad_mult = M_PI / 180;
+double deg_mult = 180 / M_PI;
+
 %}
 
 %union {
 	double val;
 };
 
-bool rad = true;
-double rad_mult = M_PI / 180;
-double deg_mult = 180 / M_PI;
+
 
 
 %token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG FACT POW MOD LOG;
@@ -18,11 +21,11 @@ double deg_mult = 180 / M_PI;
 %type <val> command expr;
 
 %%
-command : expr '\n' { printf("El resultado es: %f\n", $1) return 0; }
+command : expr '\n' { printf("El resultado es: %f\n", $1); return 0; }
 		;
 
 
-expr	: NUMBER { $$ = $1; }
+expr	: 	NUMBER { $$ = $1; }
 		| '(' expr ')' { $$ = $2; }
 		| PI { $$ = $1; }
 		| '-' expr {$$ = -$2;}
@@ -34,9 +37,13 @@ expr	: NUMBER { $$ = $1; }
 							printf("¡ERROR! División entre cero no definida\n");
                                 	}
                               	$$=$1/$3; }
-		| expr { $$ = $1; }
-		| expr POW expr { $$ = pow($1, $3); }
-		| expr MOD expr { $$ = fmodf($1, $3); }
+		//| expr { $$ = $1; }
+		| '(' expr ')' POW '(' expr ')' { $$ = pow($2, $6); }
+		| '(' expr ')' MOD '(' expr ')' { $$ = fmodf($2, $6); }
+		| '(' expr ')' FACT { $$ = tgamma($2 + 1); }
+		| LOG '(' expr ')' { $$ = log($3); }
+		| RAD { rad = 1; }
+		| DEG { rad = 0; }
 		| SIN '(' expr ')'{
 						if(rad){
 							$$ = sin(rad_mult * $3);
@@ -101,10 +108,6 @@ expr	: NUMBER { $$ = $1; }
 							$$ = atan(deg_mult * $3);
 						}
 					}
-
-
-		| expr FACT { $$ = tgamma($1 + 1); }
-		| LOG expr { $$ = log($2); }
 		;
 	
 %%

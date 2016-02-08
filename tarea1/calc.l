@@ -62,12 +62,12 @@ atan							{
 									return FACT;
 								}	
 
-to_rad							{
+rad								{
 									return RAD;
 								}
 
-to_deg							{
-									return GRAD;
+deg								{
+									return DEG;
 								}								
 
 \^								{
