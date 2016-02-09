@@ -85,6 +85,10 @@ ln								{
 
 e								{
 									return E;
+								}
+
+exp								{
+									return EXP;
 								}														
 
 %%
