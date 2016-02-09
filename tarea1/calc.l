@@ -87,6 +87,12 @@ e								{
 									return E;
 								}		
 
-																		
+exp								{
+									return EXP;
+								}				
+
+\%								{
+									return PORC;
+								}		
 
 %%

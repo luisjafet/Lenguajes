@@ -16,11 +16,11 @@ double rad_mult = 180 / M_PI;
 
 
 
-%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN E;
+%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN E EXP;
 %token <val> NUMBER PI;
 %type <val> command expr;
 %left '+' '-'
-%left '*' '/' E
+%left '*' '/' E EXP
 %left POW FACT MOD
 
 
@@ -52,6 +52,7 @@ expr	: 	NUMBER { $$ = $1; }
 		|  expr  '!' { $$ = tgamma($1 + 1); }
 		| LOG expr { $$ = log10($2); }
 		| LN expr { $$ = log($2); }
+		| EXP expr { $$ = exp($2); }
 		| expr E expr {$$ = $1 * (pow(10, $3)); }
 		| RAD { rad = 1; printf("Radianes \n"); }
 		| DEG { rad = 0; printf("Grados \n"); }
