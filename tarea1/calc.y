@@ -16,11 +16,11 @@ double rad_mult = 180 / M_PI;
 
 
 
-%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN E EXP;
+%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN E EXP PORC;
 %token <val> NUMBER PI;
 %type <val> command expr;
 %left '+' '-'
-%left '*' '/' E EXP
+%left '*' '/' E EXP PORC
 %left POW FACT MOD
 
 
@@ -53,26 +53,27 @@ expr	: 	NUMBER { $$ = $1; }
 		| LOG expr { $$ = log10($2); }
 		| LN expr { $$ = log($2); }
 		| EXP expr { $$ = exp($2); }
+		| expr PORC {$$ = 0.01 * $1; }
 		| expr E expr {$$ = $1 * (pow(10, $3)); }
 		| RAD { rad = 1; printf("Radianes \n"); }
 		| DEG { rad = 0; printf("Grados \n"); }
 		| SIN expr{
 						if(rad){
-							$$ = sin(rad_mult * $2);
+							$$ = sin($2);
 						}else{
 							$$ = sin(deg_mult * $2);
 						}
 					}
 		| COS expr {
 						if(rad){
-							$$ = cos(rad_mult * $2);
+							$$ = cos($2);
 						}else{
 							$$ = cos(deg_mult * $2);
 						}
 					}
 		| TAN expr{
 						if(rad){
-							$$ = tan(rad_mult * $2);
+							$$ = tan($2);
 						}else{
 							$$ = tan(deg_mult * $2);
 						}
@@ -80,21 +81,21 @@ expr	: 	NUMBER { $$ = $1; }
 
 		| COT expr {
 						if(rad){
-							$$ = 1/tan(rad_mult * $2);
+							$$ = 1/tan($2);
 						}else{
 							$$ = 1/tan(deg_mult * $2);
 						}
 					}
 		| SEC expr {
 						if(rad){
-							$$ = 1/cos(rad_mult * $2);
+							$$ = 1/cos($2);
 						}else{
 							$$ = 1/cos(deg_mult * $2);
 						}
 					}
 		| CSC expr {
 						if(rad){
-							$$ = 1/sin(rad_mult * $2);
+							$$ = 1/sin($2);
 						}else{
 							$$ = 1/sin(deg_mult * $2);
 						}
