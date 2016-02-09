@@ -102,21 +102,21 @@ expr	: 	NUMBER { $$ = $1; }
 						if(rad){
 							$$ = asin(rad_mult * $2);
 						}else{
-							$$ = asin(deg_mult * $2);
+							$$ = asin($2) * rad_mult;
 						}
 					}
 		| ACOS expr{
 						if(rad){
 							$$ = acos(rad_mult * $2);
 						}else{
-							$$ = acos(deg_mult * $2);
+							$$ = acos($2) * rad_mult;
 						}
 					}
 		| ATAN expr{
 						if(rad){
 							$$ = atan(rad_mult * $2);
 						}else{
-							$$ = atan(deg_mult * $2);
+							$$ = atan($2) * rad_mult;
 						}
 					}
 		;
