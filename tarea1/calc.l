@@ -81,6 +81,10 @@ log								{
 
 ln								{
 									return LN;
+								}
+
+e								{
+									return E;
 								}														
 
 %%

@@ -4,8 +4,8 @@
 #include <tgmath.h>
 
 int rad = 1;
-double rad_mult = M_PI / 180;
-double deg_mult = 180 / M_PI;
+double deg_mult = M_PI / 180;
+double rad_mult = 180 / M_PI;
 
 %}
 
@@ -16,12 +16,12 @@ double deg_mult = 180 / M_PI;
 
 
 
-%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN;
+%token SIN COS TAN COT SEC CSC ASIN ACOS ATAN RAD DEG POW MOD LOG LN E;
 %token <val> NUMBER PI;
 %type <val> command expr;
 %left '+' '-'
-%left '*' '/'
-%left POW FACT
+%left '*' '/' E
+%left POW FACT MOD
 
 
 
@@ -52,6 +52,7 @@ expr	: 	NUMBER { $$ = $1; }
 		|  expr  '!' { $$ = tgamma($1 + 1); }
 		| LOG expr { $$ = log10($2); }
 		| LN expr { $$ = log($2); }
+		| expr E expr {$$ = $1 * (pow(10, $3)); }
 		| RAD { rad = 1; printf("Radianes \n"); }
 		| DEG { rad = 0; printf("Grados \n"); }
 		| SIN expr{
