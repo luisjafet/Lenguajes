@@ -90,22 +90,18 @@ specialForms["while"] = function(args, env) {
   while (evaluate(args[0], env) !== false)
     evaluate(args[1], env);
 
-  // Since undefined does not exist in Egg, we return false,
-  // for lack of a meaningful result.
   return false;
 };
 
 // for
-// implementation not yet complete...
+// implementation maybe complete...
 specialForms["for"] = function(args, env) {
-  if (args.length != 2)
-    throw new SyntaxError("Bad number of args to while");
+  if (args.length != 4)
+    throw new SyntaxError("Bad number of args to for");
 
-  while (evaluate(args[0], env) !== false)
-    evaluate(args[1], env);
+  for (evaluate(args[0], env); evaluate(args[1], env); evaluate(args[2], env))
+    evaluate(args[3], env);
 
-  // Since undefined does not exist in Egg, we return false,
-  // for lack of a meaningful result.
   return false;
 };
 
@@ -133,6 +129,7 @@ var topEnv = Object.create(null);
 topEnv["true"] = true;
 topEnv["false"] = false;
 // other operands
+// <= and >= added
 ["+", "-", "*", "/", "==", "<", ">", "<=", ">="].forEach(function(op) {
   topEnv[op] = new Function("a, b", "return a " + op + " b;");
 });
@@ -150,10 +147,17 @@ function run() {
   return evaluate(parse(program), env);
 }
 
-// program example
+// program example with while
 run("do(define(total, 0),",
     "   define(count, 1),",
     "   while(<=(count, 11),",
     "         do(define(total, +(total, count)),",
     "            define(count, +(count, 1)))),",
+    "   print(total))");
+
+// program example with for
+run("do(define(total, 0),",
+    "   define(n, 11),",
+    "   for(define(count, 0), <=(count, n), define(count, +(count, 1)),",
+    "         do(define(total, +(total, count)))),",
     "   print(total))");
