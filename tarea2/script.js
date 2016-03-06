@@ -6,7 +6,7 @@ function skipSpace(string) {
   return string.slice(ignora[0].length);
 }
 
-//builds syntax tree
+// builds syntax tree
 function parseApply(expr, program) {
   program = skipSpace(program);
   if (program[0] != "(")
@@ -26,21 +26,7 @@ function parseApply(expr, program) {
   return parseApply(expr, program.slice(1));
 }
 
-// function parseExpression(program) {
-//   program = skipSpace(program);
-//   var match, expr;
-//   if (match = /^"([^"]*)"/.exec(program))
-//     expr = {type: "value", value: match[1]};
-//   else if (match = /^\d+\b/.exec(program))
-//     expr = {type: "value", value: Number(match[0])};
-//   else if (match = /^[^\s(),"]+/.exec(program))
-//     expr = {type: "word", name: match[0]};
-//   else
-//     throw new SyntaxError("Unexpected syntax: " + program);
-// 
-//   return parseApply(expr, program.slice(match[0].length));
-// }
-
+// this parse (parseExpression parse.. ja!) integer and float added
 function parseExpression(program) {
   program = skipSpace(program);
   var match, expr;
@@ -117,7 +103,6 @@ specialForms["while"] = function(args, env) {
 };
 
 // for
-// implementation maybe complete...
 specialForms["for"] = function(args, env) {
   if (args.length != 4)
     throw new SyntaxError("Bad number of args to for");
@@ -199,16 +184,96 @@ topEnv["element"] = function(array, position) {
    return array[position];
 };
 
-// sum_array
-topEnv["sum_array"] = function(array) {
-  sum = array.reduce(function(a, b) { return a + b; }, 0);
-  return sum;
+// sum array elements
+topEnv["sum_array_elements"] = function(array) {
+  return array.reduce(function(a, b) { return a + b; }, 0);;
 };
 
-// sort_array
-topEnv["sum_array"] = function(array) {
-  sum = array.reduce(function(a, b) { return a + b; }, 0);
-  return sum;
+// sum 2 arrays
+topEnv["sum_arrays"] = function(array1, array2) {
+  if(array1.length !== array2.length)
+    return "SyntaxError: Bad array length";
+
+  res = [];
+  for(i=0; i<array1.length; i++)
+    res[i] = array1[i] + array2[i];
+  return res;
+};
+
+// sort array elements with js sort function
+topEnv["sort_array1"] = function(array) {
+  return array.sort(function(a, b){return a-b});
+};
+
+// sort array elements with quick sort
+topEnv["sort_array2"] = function(array) {
+  function swap(arr, i, j){
+    var temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  function partition(arr, pivot, left, right){
+    var pivotValue = arr[pivot],
+         partitionIndex = left;
+
+    for(var i = left; i < right; i++){
+      if(arr[i] < pivotValue){
+        swap(arr, i, partitionIndex);
+        partitionIndex++;
+      }
+    }
+    swap(arr, right, partitionIndex);
+    return partitionIndex;
+  }
+
+
+  function quickSort(arr, left, right){
+    var len = arr.length, 
+    pivot,
+    partitionIndex;
+    if(left < right){
+      pivot = right;
+      partitionIndex = partition(arr, pivot, left, right);
+      //sort left and right
+      quickSort(arr, left, partitionIndex - 1);
+      quickSort(arr, partitionIndex + 1, right);
+    }
+    return arr;
+  }
+
+  return quickSort(array, 0, array.length-1);
+};
+
+// sort array elements with merge sort
+topEnv["sort_array3"] = function(array) {
+  function merge(left, right) {
+    var result = [];
+    while(left.length || right.length) {
+      if(left.length && right.length) {
+        if(left[0] < right[0]) {
+          result.push(left.shift());
+        } else {
+          result.push(right.shift());
+        }
+      } else if (left.length) {
+        result.push(left.shift());
+      } else {
+        result.push(right.shift());
+      }
+    }
+    return result;
+  }
+  function mergeSort(array) {
+    var length = array.length,
+        mid    = Math.floor(length * 0.5),
+        left   = array.slice(0, mid),
+        right  = array.slice(mid, length);
+    if(length === 1)
+      return array;
+
+    return merge(mergeSort(left), mergeSort(right));
+  }
+  return mergeSort(array);
 };
 
 // run program
@@ -243,25 +308,57 @@ specialForms["fun"] = function(args, env) {
   };
 };
 
-// program example with while
+// some program examples
+console.log("program example with while");
 run("do(define(total, 0),",
     "   define(count, 1),",
     "   while(<=(count, 11),",
     "         do(define(total, +(total, count)),",
     "            define(count, +(count, 1)))),",
     "   print(total))");
+// → 66
 
-// program example with for
+console.log("program example with for");
 run("do(define(total, 0),",
     "   define(n, 11),",
     "   for(define(count, 0), <=(count, n), define(count, +(count, 1)),",
     "         do(define(total, +(total, count)))),",
     "   print(total))");
+// → 66
 
-run("do(print(sum_array(array(1,2,3))))");
+console.log("program example with valid sum_arrays");
+run("do(print(sum_arrays(array(1,2,3), array(1,2,3))))");
+// → [ 2, 4, 6]
 
-run("do(print(sum_array(array(1,\"a\",3))))");
+console.log("program example with not valid sum_arrays");
+run("do(print(sum_arrays(array(1,2,3), array(1,\"a\",3))))");
+// → [ 2, NaN, 6]
 
+console.log("program example with not valid (distinct arrays size) sum_arrays");
+run("do(print(sum_arrays(array(1,2,3,4), array(1,2,3))))");
+// → SyntaxError: Bad array length
+
+console.log("program example with valid sum_array_elements");
+run("do(print(sum_array_elements(array(1,2,3))))");
+// → 6
+
+console.log("program example with not valid sum_array_elements");
+run("do(print(sum_array_elements(array(1,\"a\",3))))");
+// → NaN
+
+console.log("program example with js sort function");
+run("do(print(sort_array1(array(1,7,2,9,4,3,56,13,98,145,0))))");
+// → [ 0, 1, 13, 145, 2, 3, 4, 56, 7, 9, 98 ]
+
+console.log("program example with quick sort function");
+run("do(print(sort_array2(array(1,7,2,9,4,3,56,13,98,145,0))))");
+// → [ 0, 1, 13, 145, 2, 3, 4, 56, 7, 9, 98 ]
+
+console.log("program example with merge sort function");
+run("do(print(sort_array3(array(1,7,2,9,4,3,56,13,98,145,0))))");
+// → [ 0, 1, 13, 145, 2, 3, 4, 56, 7, 9, 98 ]
+
+console.log("program example defining sum function for array");
 run("do(define(sum, fun(array,",
     "     do(define(i, 0),",
     "        define(sum, 0),",
@@ -271,11 +368,3 @@ run("do(define(sum, fun(array,",
     "        sum))),",
     "   print(sum(array(1, 2, 3))))");
 // → 6
-
-console.log(parse("# hello\nx"));
-// → {type: "word", name: "x"}
-
-console.log(parse("a # one\n   # two\n()"));
-// → {type: "apply",
-//    operator: {type: "word", name: "a"},
-//    args: []}
