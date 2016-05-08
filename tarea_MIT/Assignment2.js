@@ -1,9 +1,6 @@
-/// <reference path="default.html" />
-/// <reference path="default.html" />
-/// JavaScript source code
+// <reference path="default.html" />
 
-
-/// Expressions
+// Expressions
 var NUM = "NUM";
 var FALSE = "FALSE";
 var VR = "VAR";
@@ -13,7 +10,7 @@ var LT = "LT";
 var AND = "AND";
 var NOT = "NOT";
 
-/// Statements
+// Statements
 var SEQ = "SEQ";
 var IFTE = "IFSTMT";
 var WHLE = "WHILESTMT";
@@ -25,12 +22,8 @@ var ASSERT = "ASSERT";
 function interpretExpr(e, state) {
     if (e.type == NUM) { return e.val; }
     if (e.type == FALSE) { return false; }
-    if (e.type == VR) {
-        return state[e.name]; 
-    }
-    if (e.type == PLUS) {
-        return interpretExpr(e.left, state) + interpretExpr(e.right, state);
-    }
+    if (e.type == VR) { return state[e.name]; }
+    if (e.type == PLUS) { return interpretExpr(e.left, state) + interpretExpr(e.right, state); }
     if (e.type == TIMES) { return interpretExpr(e.left, state) * interpretExpr(e.right, state); }
     if (e.type == LT) { return interpretExpr(e.left, state) < interpretExpr(e.right, state); }
     if (e.type == AND) { return interpretExpr(e.left, state) && interpretExpr(e.right, state); }
@@ -39,33 +32,47 @@ function interpretExpr(e, state) {
 }
 
 function interpretStmt(c, state) {
-    console.log("Object.keys(c) " + Object.keys(c));
+    // SEQ
     if (c.type == SEQ) {
         var sigmaPP = interpretStmt(c.fst, state);
         var sigmaP = interpretStmt(c.snd, sigmaPP);
         return sigmaP;
     }
-
+    // IF THEN ELSE
     if (c.type == IFTE) {
-        expr = interpretExpr(c.cond, state);
-        if(expr) {
+        var expr = interpretExpr(c.cond, state);
+        if(expr){
             var sigmaP = interpretStmt(c.tcase, state);
-        } else {
+        }else{
             var sigmaP = interpretStmt(c.fcase, state);
         }
         return sigmaP;
     }
-
+    // WHILE
     if (c.type == WHLE) {
-
-    }
-
-    if (c.type == ASSGN) {
-        c.val = interpretExpr(c.val, state);
-        state[c.vr] = c.val;
+        var expr = interpretExpr(c.cond, state);
+        if(expr){           
+            var sigmaP = interpretStmt(c.body, state);
+            var sigmaPP = interpretStmt(c, sigmaP);
+            return sigmaPP;
+        }
         return state;
     }
-
+    // ASSIGN
+    if (c.type == ASSGN) {
+        state[c.vr] = interpretExpr(c.val, state);
+        return state;
+        
+    }
+    // ASUME
+    if (c.type == ASSUME) {
+        return state;
+    }
+    // ASSERT
+    if (c.type == ASSERT) {
+        return state;
+    }
+    // SKIP
     if (c.type == SKIP) {
         return state;
     }
@@ -87,10 +94,8 @@ function interp() {
     clearConsole();
     var prog = eval(document.getElementById("p2input").value);  
     var state = JSON.parse(document.getElementById("State").value);
-    console.log("prog: " + prog);
-    var r = interpretStmt(prog, state);
-    str = JSON.stringify(r);
-    writeToConsole(str);
+    interpretStmt(prog, state);
+    writeToConsole(JSON.stringify(state));
 }
 
 function genVC() {

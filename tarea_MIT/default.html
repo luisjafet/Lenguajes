@@ -23,14 +23,13 @@
       </td>
       <td> Program to interpret/verify<br>
       <textarea id="p2input" style="width: 400px; height: 350px;">
-block([ ifte(lt(num(5), vr('x')),
-       block([ 
-        assgn('x', plus(vr('x'),num(1))), 
-        assgn('y', plus(vr('y'),num(1))), 
-       ]), 
-       skip()), 
-])             
-               
+block([
+ whle(lt(vr('x'), num(15)), 
+    block([ 
+      assgn('x', plus(vr('x'),num(1))),       
+    ]) 
+ ), 
+ ]);                            
       </textarea>
       <div class="fakebutton" onclick="interp()">Run Interpreter<code></code></div>
  <textarea id="State" style="width: 400px; height: 30px;">
