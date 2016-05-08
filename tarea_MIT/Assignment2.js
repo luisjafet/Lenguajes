@@ -92,6 +92,10 @@ function interp() {
     var prog = eval(document.getElementById("p2input").value);  
     var state = JSON.parse(document.getElementById("State").value);
     var r = interpretStmt(prog, state);
+    writeToConsole("Pretty print:");
+    writeToConsole(prog.toString());
+    writeToConsole("\n");
+    writeToConsole("Final State:");
     writeToConsole(JSON.stringify(r));
 }
 
