@@ -28,7 +28,6 @@ function interpretExpr(e, state) {
     if (e.type == LT) { return interpretExpr(e.left, state) < interpretExpr(e.right, state); }
     if (e.type == AND) { return interpretExpr(e.left, state) && interpretExpr(e.right, state); }
     if (e.type == NOT) { return !interpretExpr(e.left, state); }
-
 }
 
 function interpretStmt(c, state) {
@@ -76,9 +75,7 @@ function interpretStmt(c, state) {
     if (c.type == SKIP) {
         return state;
     }
-
 }
-
 
 function substitute(e, varName, newExp) {
     if (e.type == VR) {
@@ -94,15 +91,16 @@ function interp() {
     clearConsole();
     var prog = eval(document.getElementById("p2input").value);  
     var state = JSON.parse(document.getElementById("State").value);
-    interpretStmt(prog, state);
-    writeToConsole(JSON.stringify(state));
+    var r = interpretStmt(prog, state);
+    writeToConsole(JSON.stringify(r));
 }
 
 function genVC() {
-    var prog = eval(document.getElementById("p2input").value);
     clearConsole();
-    writeToConsole("Just pretty printing for now");
-    writeToConsole(prog.toString());
+    var prog = eval(document.getElementById("p2input").value);  
+    var state = JSON.parse(document.getElementById("State").value);
+    var r = wpc(prog, tru());
+    writeToConsole(JSON.stringify(r));
 }
 
 
@@ -176,6 +174,11 @@ function eq(x, y) {
 function tru() {
     return not(flse());
 }
+function oor(x, y){
+    return and(not(x), not(y));
+
+}
+
 function block(slist) {
     if (slist.length == 0) {
         return skip();
@@ -187,14 +190,26 @@ function block(slist) {
     }
 }
 
-function wpc(cmd, predQ) {
+function wpc(c, predQ) {
     //predQ is an expression.
     //cmd is a statement.
-    if (cmd.type == SKIP) {
+    if (c.type == SKIP) {
         return predQ;
     }
-    if (cmd.type == ASSERT) {
-        return and(cmd.exp, predQ);
+    if (c.type == ASSUME) {
+        return oor(not(c.exp), predQ);
+    }
+    if (c.type == ASSERT) {
+        return and(c.exp, predQ);
+    }
+    if (c.type == SEQ) {
+        return  wpc(c.fst, wpc(c.snd, predQ));
+    }
+    if (c.type == ASSGN) {
+        return substitute(predQ, c.vr, c.val);
+    }
+    if (c.type == IFTE) {
+        return oor(and(c.cond, wpc(c.tcase, predQ)), and(not(c.cond), wpc(c.fcase, predQ)));
     }
 
 

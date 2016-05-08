@@ -24,12 +24,15 @@
       <td> Program to interpret/verify<br>
       <textarea id="p2input" style="width: 400px; height: 350px;">
 block([
- whle(lt(vr('x'), num(15)), 
+ assgn('x',num(0)), 
+ ifte(lt(vr('x'), num(15)), 
     block([ 
       assgn('x', plus(vr('x'),num(1))),       
-    ]) 
+    ]),
+    skip()
  ), 
  ]);                            
+                                        
       </textarea>
       <div class="fakebutton" onclick="interp()">Run Interpreter<code></code></div>
  <textarea id="State" style="width: 400px; height: 30px;">
