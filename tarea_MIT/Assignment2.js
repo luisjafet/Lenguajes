@@ -85,7 +85,7 @@ function substitute(e, varName, newExp) {
     if (e.type == NUM){
         return e;
     }
-    if (e.type) {
+    if (e.type == FALSE) {
         return flse();
     }
     if (e.type == VR){
@@ -213,8 +213,8 @@ function assgn(v, val) {
 function ifte(c, t, f) {
     return { type: IFTE, cond: c, tcase: t, fcase: f, toString: function () { return "if(" + this.cond.toString() + "){\n" + this.tcase.toString() + '\n}else{\n' + this.fcase.toString() + '\n}'; } };
 }
-function whle(c, b) {
-    return { type: WHLE, cond: c, body: b, toString: function () { return "while(" + this.cond.toString() + "){\n" + this.body.toString() + '\n}'; } };
+function whle(c, b, i) {
+    return { type: WHLE, cond: c, body: b, inv: i, toString: function () { return "while(" + this.cond.toString() + "){\n" + this.body.toString() + '\n}'; } };
 }
 function skip() {
     return { type: SKIP, toString: function () { return "/*skip*/"; } };
@@ -228,7 +228,7 @@ function tru() {
     return not(flse());
 }
 function oor(x, y){
-    return and(not(x), not(y));
+    return not(and(not(x), not(y)));
 
 }
 
