@@ -148,8 +148,8 @@ function genVC() {
     clearConsole();
     var prog = eval(document.getElementById("p2input").value);  
     var r = wpc(prog, tru());
-    writeToConsole(r.toString());
-    writeToConsole("\n (assert (not " + r.toZ3() + "))");
+    writeToConsole("WPC:\n" + r.toString());
+    writeToConsole("\n\nCode to copy and paste into Z3:\n(assert (not " + r.toZ3() + "))" + "\n(check-sat)");
 }
 
 
