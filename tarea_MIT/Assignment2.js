@@ -31,13 +31,11 @@ function interpretExpr(e, state) {
 }
 
 function interpretStmt(c, state) {
-    // SEQ
     if (c.type == SEQ) {
         var sigmaPP = interpretStmt(c.fst, state);
         var sigmaP = interpretStmt(c.snd, sigmaPP);
         return sigmaP;
     }
-    // IF THEN ELSE
     if (c.type == IFTE) {
         var expr = interpretExpr(c.cond, state);
         if(expr){
@@ -47,7 +45,6 @@ function interpretStmt(c, state) {
         }
         return sigmaP;
     }
-    // WHILE
     if (c.type == WHLE) {
         var expr = interpretExpr(c.cond, state);
         if(expr){           
@@ -57,33 +54,19 @@ function interpretStmt(c, state) {
         }
         return state;
     }
-    // ASSIGN
     if (c.type == ASSGN) {
         state[c.vr] = interpretExpr(c.val, state);
         return state;
         
     }
-    // ASUME
     if (c.type == ASSUME) {
         return state;
     }
-    // ASSERT
     if (c.type == ASSERT) {
         return state;
     }
-    // SKIP
     if (c.type == SKIP) {
         return state;
-    }
-}
-
-function substitute(e, varName, newExp) {
-    if (e.type == VR) {
-        if (e.name === varName) {
-            return newExp;
-        } else {
-            return e;
-        }
     }
 }
 
@@ -98,14 +81,44 @@ function interp() {
     writeToConsole(JSON.stringify(r));
 }
 
-function genVC() {
-    clearConsole();
-    var prog = eval(document.getElementById("p2input").value);  
-    var r = wpc(prog, tru());
-    writeToConsole(JSON.stringify(r));
+function substitute(e, varName, newExp) {
+    if (e.type == NUM){
+        return e;
+    }
+    if (e.type) {
+        return flse();
+    }
+    if (e.type == VR){
+        if (e.name === varName) {
+            return newExp;
+        } else {
+            return e;
+        }
+    }
+    if (e.type == PLUS){
+        var left = substitute(e.left, varName, newExp);
+        var right = substitute(e.right, varName, newExp);
+        return plus(left, right);
+    }
+    if (e.type == TIMES){
+        var left = substitute(e.left, varName, newExp);
+        var right = substitute(e.right, varName, newExp);
+        return times(left, right);
+    }
+    if (e.type == LT){
+        var left = substitute(e.left, varName, newExp);
+        var right = substitute(e.right, varName, newExp);
+        return lt(left, right);
+    }
+    if (e.type == AND){
+        var left = substitute(e.left, varName, newExp);
+        var right = substitute(e.right, varName, newExp);
+        return and(left, right);
+    }
+    if (e.type == NOT){
+        return not(substitute(e.left, varName, newExp));
+    }
 }
-
-
 
 function wpc(c, predQ) {
     //predQ is an expression.
@@ -129,6 +142,13 @@ function wpc(c, predQ) {
     if (c.type == IFTE) {
         return oor(and(c.cond, wpc(c.tcase, predQ)), and(not(c.cond), wpc(c.fcase, predQ)));
     }
+}
+
+function genVC() {
+    clearConsole();
+    var prog = eval(document.getElementById("p2input").value);  
+    var r = wpc(prog, tru());
+    writeToConsole(r.toString());
 }
 
 
