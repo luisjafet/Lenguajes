@@ -25,17 +25,15 @@
       <textarea id="p2input" style="width: 400px; height: 350px;">
 block([
   assume(tru()), 
-  assgn('x', num(0)), 
-  assgn('y', num(0)), 
-  assgn('t',num(0)), 
-  ifte(lt(num(5), vr('t')),
-    block([ 
-      assgn('x', plus(vr('x'),num(1))), 
-      assgn('y', plus(vr('y'),num(1))), 
-    ]), 
-      skip()), 
-      assgn('t', plus(vr('t'), num(1))),
-  assert(eq(vr('x'), vr('y')))
+  assgn('t', num(0)), 
+  assgn('N', num(10)), 
+  assgn('x', num(10)), 
+  whle(gt(vr('t'), num(0)), block([ eq(num(10), plus(vr('x'),vr('y'))), gteq(vr('x'), num(0)) ]), 
+  block([ 
+    assgn('x', plus(vr('x'),num(1))), 
+    assgn('y', plus(vr('y'),num(1))), 
+  ])), 
+  assert(eq(vr('t'), num(10)))
 ]);
       </textarea>
       <div class="fakebutton" onclick="interp()">Run Interpreter<code></code></div>

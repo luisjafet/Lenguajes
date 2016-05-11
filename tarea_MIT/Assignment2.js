@@ -120,34 +120,46 @@ function substitute(e, varName, newExp) {
     }
 }
 
-function wpc(c, predQ) {
+function wpc(c, predQ, state) {
     //predQ is an expression.
     //cmd is a statement.
-    if (c.type == SKIP) {
+    if (c.type == SKIP){
         return predQ;
     }
-    if (c.type == ASSUME) {
+    if (c.type == ASSUME){
         return oor(not(c.exp), predQ);
     }
-    if (c.type == ASSERT) {
+    if (c.type == ASSERT){
         return and(c.exp, predQ);
     }
-    if (c.type == SEQ) {
-        var wpc1 = wpc(c.snd, predQ);
-        return  wpc(c.fst, wpc1);
+    if (c.type == SEQ){
+        var wpc1 = wpc(c.snd, predQ, state);
+        return  wpc(c.fst, wpc1, state);
     }
-    if (c.type == ASSGN) {
+    if (c.type == ASSGN){
         return substitute(predQ, c.vr, c.val);
     }
-    if (c.type == IFTE) {
-        return oor(and(c.cond, wpc(c.tcase, predQ)), and(not(c.cond), wpc(c.fcase, predQ)));
+    if (c.type == IFTE){
+        return oor(and(c.cond, wpc(c.tcase, predQ, state)), and(not(c.cond), wpc(c.fcase, predQ, state)));
+    }
+    if (c.type == WHLE){
+        var b_ = oor(not(c.cond), wpc(c.body, c.inv, state));
+        var c_ = oor(c.cond, predQ);
+        var subs = and(b_, c_);
+
+        for(var s in state){
+            subs = substitute(subs, s,name, s.name + guuid());
+        }
     }
 }
 
 function genVC() {
     clearConsole();
-    var prog = eval(document.getElementById("p2input").value);  
-    var r = wpc(prog, tru());
+    var prog = eval(document.getElementById("p2input").value);
+    var state = JSON.parse(document.getElementById("State").value);
+    var final_state = interpretStmt(prog, state);
+    var r = wpc(prog, tru(), final_state);
+
     writeToConsole("WPC:\n" + r.toString());
     writeToConsole("\n\nCode to copy and paste into Z3:\n(assert (not " + r.toZ3() + "))" + "\n(check-sat)");
 }
@@ -239,7 +251,7 @@ function ifte(c, t, f) {
         toString: function () { return "if(" + this.cond.toString() + "){\n" + this.tcase.toString() + '\n}else{\n' + this.fcase.toString() + '\n}'; },
         toZ3: function () { return "(ite" + this.cond.toZ3() + "){\n" + this.tcase.toZ3() + '\n}else{\n' + this.fcase.toZ3() + '\n}';} };
 }
-function whle(c, b, i) {
+function whle(c, i, b) {
     return { type: WHLE, cond: c, body: b, inv: i,
         toString: function () { return "while(" + this.cond.toString() + "){\n" + this.body.toString() + '\n}'; } };
 }
@@ -252,6 +264,12 @@ function skip() {
 function eq(x, y) {
     return and(not(lt(x, y)), not(lt(y, x)));
 }
+function gt(x, y){
+    return lt(y, x);
+}
+function gteq(x, y){
+    return not (lt(x, y));
+}
 function tru() {
     return not(flse());
 }
@@ -259,7 +277,15 @@ function oor(x, y){
     return not(and(not(x), not(y)));
 
 }
-
+function guuid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
 function block(slist) {
     if (slist.length == 0) {
         return skip();
