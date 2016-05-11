@@ -94,19 +94,48 @@ function interp() {
     var r = interpretStmt(prog, state);
     writeToConsole("Pretty print:");
     writeToConsole(prog.toString());
-    writeToConsole("\n");
-    writeToConsole("Final State:");
+    writeToConsole("\n Final State:");
     writeToConsole(JSON.stringify(r));
 }
 
 function genVC() {
     clearConsole();
     var prog = eval(document.getElementById("p2input").value);  
-    var state = JSON.parse(document.getElementById("State").value);
     var r = wpc(prog, tru());
     writeToConsole(JSON.stringify(r));
 }
 
+
+
+function wpc(c, predQ) {
+    //predQ is an expression.
+    //cmd is a statement.
+    if (c.type == SKIP) {
+        return predQ;
+    }
+    if (c.type == ASSUME) {
+        return oor(not(c.exp), predQ);
+    }
+    if (c.type == ASSERT) {
+        return and(c.exp, predQ);
+    }
+    if (c.type == SEQ) {
+        var wpc1 = wpc(c.snd, predQ);
+        return  wpc(c.fst, wpc1);
+    }
+    if (c.type == ASSGN) {
+        return substitute(predQ, c.vr, c.val);
+    }
+    if (c.type == IFTE) {
+        return oor(and(c.cond, wpc(c.tcase, predQ)), and(not(c.cond), wpc(c.fcase, predQ)));
+    }
+}
+
+
+//The stuff you have to implement.
+function computeVC(prog) {
+    //Compute the verification condition for the program leaving some kind of place holder for loop invariants.
+}
 
 // Help functions for html console
 function writeToConsole(text) {
@@ -192,36 +221,4 @@ function block(slist) {
     } else {
         return seq(slist[0], block(slist.slice(1)));
     }
-}
-
-function wpc(c, predQ) {
-    //predQ is an expression.
-    //cmd is a statement.
-    if (c.type == SKIP) {
-        return predQ;
-    }
-    if (c.type == ASSUME) {
-        return oor(not(c.exp), predQ);
-    }
-    if (c.type == ASSERT) {
-        return and(c.exp, predQ);
-    }
-    if (c.type == SEQ) {
-        return  wpc(c.fst, wpc(c.snd, predQ));
-    }
-    if (c.type == ASSGN) {
-        return substitute(predQ, c.vr, c.val);
-    }
-    if (c.type == IFTE) {
-        return oor(and(c.cond, wpc(c.tcase, predQ)), and(not(c.cond), wpc(c.fcase, predQ)));
-    }
-
-
-}
-
-
-
-//The stuff you have to implement.
-function computeVC(prog) {
-    //Compute the verification condition for the program leaving some kind of place holder for loop invariants.
 }
