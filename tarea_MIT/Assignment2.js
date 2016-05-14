@@ -1,5 +1,7 @@
 // <reference path="default.html" />
 
+var some_vars = [];
+
 // Expressions
 var NUM = "NUM";
 var FALSE = "FALSE";
@@ -118,11 +120,15 @@ function substitute(e, varName, newExp) {
     if (e.type == NOT){
         return not(substitute(e.left, varName, newExp));
     }
+    if(e.type == SEQ){
+        var fst = substitute(e.fst, varName, newExp);
+        var snd = substitute(e.snd, varName, newExp);
+        return seq(fst, snd);
+    }
 }
 
-function wpc(c, predQ, state) {
-    //predQ is an expression.
-    //cmd is a statement.
+// We know we can only aim for a "great" (whatever that means) vc instead of a wpc for a while
+function wpc(c, predQ) {
     if (c.type == SKIP){
         return predQ;
     }
@@ -133,42 +139,84 @@ function wpc(c, predQ, state) {
         return and(c.exp, predQ);
     }
     if (c.type == SEQ){
-        var wpc1 = wpc(c.snd, predQ, state);
-        return  wpc(c.fst, wpc1, state);
+        var seq1 = wpc(c.snd, predQ);
+        var seq2 = wpc(c.fst, seq1);
+        return  seq2;
     }
     if (c.type == ASSGN){
         return substitute(predQ, c.vr, c.val);
     }
     if (c.type == IFTE){
-        return oor(and(c.cond, wpc(c.tcase, predQ, state)), and(not(c.cond), wpc(c.fcase, predQ, state)));
+        var ifte1 = wpc(c.tcase, predQ);
+        var ifte2 = wpc(c.fcase, predQ);
+        var ifte3 = oor(and(c.cond, ifte1), and(not(c.cond), ifte2));
+        return ifte3;
     }
     if (c.type == WHLE){
-        var b_ = oor(not(c.cond), wpc(c.body, c.inv, state));
+        var b_ = oor(not(c.cond), wpc(c.body, c.inv));
         var c_ = oor(c.cond, predQ);
-        var subs = and(b_, c_);
-
-        for(var s in state){
-            subs = substitute(subs, s,name, s.name + guuid());
+        var a_ = and(b_, c_);
+        var subs = oor(not(c.inv), a_);
+        var vars = getUniqueVars(c.inv);
+        
+        for(var v in vars){
+            subs = substitute(subs, v, v + guuid());
         }
+       
+        return and(c.inv, subs);
+    }
+}
+
+function getUniqueVars(inv){
+    getVars(inv);
+    var unique_vars = [];
+    // this creates unique list of only strings
+    for (var v in some_vars){
+        if (typeof(v) == "string" && unique_vars.indexOf(v) == -1){
+            unique_vars.push(v);
+        }
+    }
+
+    return unique_vars;
+
+}
+
+function getVars(inv){
+    if (inv.type == VR){
+        return some_vars.push(inv.name);
+    }
+    if (inv.type == PLUS){
+        return some_vars.push(getVars(inv.left), getVars(inv.right));
+    }
+    if (inv.type == TIMES){
+        return some_vars.push(getVars(inv.left), getVars(inv.right));
+    }
+    if (inv.type == LT){
+        return some_vars.push(getVars(inv.left), getVars(inv.right));
+    }
+    if (inv.type == AND){
+        return some_vars.push(getVars(inv.left), getVars(inv.right));
+    }
+    if (inv.type == NOT){
+        return some_vars.push(getVars(inv.left));
+    }
+    if (inv.type == SEQ){
+        return some_vars.push(getVars(inv.fst), getVars(inv.snd));
+    }
+    if (inv.type == NUM) {
+        return some_vars.push(inv.val);
     }
 }
 
 function genVC() {
     clearConsole();
     var prog = eval(document.getElementById("p2input").value);
-    var state = JSON.parse(document.getElementById("State").value);
-    var final_state = interpretStmt(prog, state);
-    var r = wpc(prog, tru(), final_state);
+    var r = wpc(prog, tru());
 
     writeToConsole("WPC:\n" + r.toString());
     writeToConsole("\n\nCode to copy and paste into Z3:\n(assert (not " + r.toZ3() + "))" + "\n(check-sat)");
 }
 
-
-//The stuff you have to implement.
-function computeVC(prog) {
-    //Compute the verification condition for the program leaving some kind of place holder for loop invariants.
-}
 
 // Help functions for html console
 function writeToConsole(text) {
@@ -230,7 +278,7 @@ function not(x) {
 function seq(s1, s2) {
     return { type: SEQ, fst: s1, snd: s2,
         toString: function () { return "" + this.fst.toString() + ";\n" + this.snd.toString(); },
-        toZ3: function () { return this.left.toZ3() + "\n" + this.right.toZ3(); } };
+        toZ3: function () { return this.fst.toZ3() + "\n" + this.snd.toZ3(); } };
 }
 function assume(e) {
     return { type: ASSUME, exp: e,
