@@ -1,4 +1,4 @@
-// <reference path="default.html" />
+    // <reference path="default.html" />
 
 var some_vars = [];
 
@@ -253,27 +253,27 @@ function num(n) {
 function plus(x, y) {
     return { type: PLUS, left: x, right: y,
         toString: function () { return "(" + this.left.toString() + "+" + this.right.toString() + ")"; },
-        toZ3: function () { return "(+ " + this.left.toZ3() + " " + this.right.toZ3() + ")"; } };
+        toZ3: function () { return "(+ " + this.left.toZ3() + " " + this.right.toZ3() + ") "; } };
 }
 function times(x, y) {
     return { type: TIMES, left: x, right: y,
         toString: function () { return "(" + this.left.toString() + "*" + this.right.toString() + ")"; },
-        toZ3: function () { return "(* " + this.left.toZ3() + " " + this.right.toZ3() + ")"; } };
+        toZ3: function () { return "(* " + this.left.toZ3() + " " + this.right.toZ3() + ") "; } };
 }
 function lt(x, y) {
     return { type: LT, left: x, right: y,
         toString: function () { return "(" + this.left.toString() + "<" + this.right.toString() + ")"; },
-        toZ3: function () { return "(< " + this.left.toZ3() + " " + this.right.toZ3() + ")"; } };
+        toZ3: function () { return "(< " + this.left.toZ3() + " " + this.right.toZ3() + ") "; } };
 }
 function and(x, y) {
     return { type: AND, left: x, right: y,
         toString: function () { return "(" + this.left.toString() + "&&" + this.right.toString() + ")"; },
-        toZ3: function () { return "(and " + this.left.toZ3() + " " + this.right.toZ3() + ")"; } };
+        toZ3: function () { return "(and " + this.left.toZ3() + " " + this.right.toZ3() + ") "; } };
 }
 function not(x) {
     return { type: NOT, left: x,
         toString: function () { return "(!" + this.left.toString() + ")"; },
-        toZ3: function () { return "(not " + this.left.toZ3() + ")"; } };
+        toZ3: function () { return "(not " + this.left.toZ3() + ") "; } };
 }
 function seq(s1, s2) {
     return { type: SEQ, fst: s1, snd: s2,
@@ -283,12 +283,12 @@ function seq(s1, s2) {
 function assume(e) {
     return { type: ASSUME, exp: e,
         toString: function () { return "assume " + this.exp.toString(); },
-        toZ3: function () { return "(asumme" + this.exp.toZ3() + ")"; } };
+        toZ3: function () { return "(asumme " + this.exp.toZ3() + ") "; } };
 }
 function assert(e) {
     return { type: ASSERT, exp: e,
         toString: function () { return "assert " + this.exp.toString(); },
-        toZ3: function () { return "(assert " + this.left.toZ3() + ")"; } };
+        toZ3: function () { return "(assert " + this.left.toZ3() + ") "; } };
 }
 function assgn(v, val) {
     return { type: ASSGN, vr: v, val: val,
@@ -297,7 +297,7 @@ function assgn(v, val) {
 function ifte(c, t, f) {
     return { type: IFTE, cond: c, tcase: t, fcase: f,
         toString: function () { return "if(" + this.cond.toString() + "){\n" + this.tcase.toString() + '\n}else{\n' + this.fcase.toString() + '\n}'; },
-        toZ3: function () { return "(ite" + this.cond.toZ3() + "){\n" + this.tcase.toZ3() + '\n}else{\n' + this.fcase.toZ3() + '\n}';} };
+        toZ3: function () { return "(ite (" + this.cond.toZ3() + ") " + this.tcase.toZ3() + this.fcase.toZ3() + ") ";} };
 }
 function whle(c, i, b) {
     return { type: WHLE, cond: c, body: b, inv: i,
@@ -312,19 +312,24 @@ function skip() {
 function eq(x, y) {
     return and(not(lt(x, y)), not(lt(y, x)));
 }
+
 function gt(x, y){
     return lt(y, x);
 }
+
 function gteq(x, y){
     return not (lt(x, y));
 }
+
 function tru() {
     return not(flse());
 }
+
 function oor(x, y){
     return not(and(not(x), not(y)));
 
 }
+
 function guuid() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -334,6 +339,7 @@ function guuid() {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
     s4() + '-' + s4() + s4() + s4();
 }
+
 function block(slist) {
     if (slist.length == 0) {
         return skip();
