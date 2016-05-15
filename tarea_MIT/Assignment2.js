@@ -159,9 +159,13 @@ function wpc(c, predQ) {
         var subs = oor(not(c.inv), a_);
         var vars = getUniqueVars(c.inv);
         
-        for(var v in vars){
+        vars.forEach(function(v){
             subs = substitute(subs, v, v + guuid());
-        }
+        })
+
+//        for(var v in vars){
+//            subs = substitute(subs, v, v + guuid());
+//        }
        
         return and(c.inv, subs);
     }
@@ -171,11 +175,16 @@ function getUniqueVars(inv){
     getVars(inv);
     var unique_vars = [];
     // this creates unique list of only strings
-    for (var v in some_vars){
+    some_vars.forEach(function(v){
         if (typeof(v) == "string" && unique_vars.indexOf(v) == -1){
             unique_vars.push(v);
         }
-    }
+    })
+//    for (var v in some_vars){
+//        if (typeof(v) == "string" && unique_vars.indexOf(v) == -1){
+//            unique_vars.push(v);
+//        }
+//    }
 
     return unique_vars;
 
