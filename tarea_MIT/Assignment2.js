@@ -1,6 +1,7 @@
-    // <reference path="default.html" />
+// <reference path="default.html" />
 
-var some_vars = [];
+var old_vars = [];
+var new_vars = [];
 
 // Expressions
 var NUM = "NUM";
@@ -79,7 +80,7 @@ function interp() {
     var r = interpretStmt(prog, state);
     writeToConsole("Pretty print:");
     writeToConsole(prog.toString());
-    writeToConsole("\n Final State:");
+    writeToConsole("\nFinal State:");
     writeToConsole(JSON.stringify(r));
 }
 
@@ -120,11 +121,13 @@ function substitute(e, varName, newExp) {
     if (e.type == NOT){
         return not(substitute(e.left, varName, newExp));
     }
+    
     if(e.type == SEQ){
         var fst = substitute(e.fst, varName, newExp);
         var snd = substitute(e.snd, varName, newExp);
         return seq(fst, snd);
     }
+    
 }
 
 // We know we can only aim for a "great" (whatever that means) vc instead of a wpc for a while
@@ -158,15 +161,13 @@ function wpc(c, predQ) {
         var a_ = and(b_, c_);
         var subs = oor(not(c.inv), a_);
         var vars = getUniqueVars(c.inv);
-        
+      
         vars.forEach(function(v){
-            subs = substitute(subs, v, v + guuid());
-        })
+            var new_var = v + "_" + guuid();
+            new_vars.push(new_var);
+            subs = substitute(subs, v, vr(new_var));
+        });
 
-//        for(var v in vars){
-//            subs = substitute(subs, v, v + guuid());
-//        }
-       
         return and(c.inv, subs);
     }
 }
@@ -174,17 +175,13 @@ function wpc(c, predQ) {
 function getUniqueVars(inv){
     getVars(inv);
     var unique_vars = [];
+
     // this creates unique list of only strings
-    some_vars.forEach(function(v){
+    old_vars.forEach(function(v){
         if (typeof(v) == "string" && unique_vars.indexOf(v) == -1){
             unique_vars.push(v);
         }
-    })
-//    for (var v in some_vars){
-//        if (typeof(v) == "string" && unique_vars.indexOf(v) == -1){
-//            unique_vars.push(v);
-//        }
-//    }
+    });
 
     return unique_vars;
 
@@ -192,28 +189,28 @@ function getUniqueVars(inv){
 
 function getVars(inv){
     if (inv.type == VR){
-        return some_vars.push(inv.name);
+        return old_vars.push(inv.name);
     }
     if (inv.type == PLUS){
-        return some_vars.push(getVars(inv.left), getVars(inv.right));
+        return old_vars.push(getVars(inv.left), getVars(inv.right));
     }
     if (inv.type == TIMES){
-        return some_vars.push(getVars(inv.left), getVars(inv.right));
+        return old_vars.push(getVars(inv.left), getVars(inv.right));
     }
     if (inv.type == LT){
-        return some_vars.push(getVars(inv.left), getVars(inv.right));
+        return old_vars.push(getVars(inv.left), getVars(inv.right));
     }
     if (inv.type == AND){
-        return some_vars.push(getVars(inv.left), getVars(inv.right));
+        return old_vars.push(getVars(inv.left), getVars(inv.right));
     }
     if (inv.type == NOT){
-        return some_vars.push(getVars(inv.left));
+        return old_vars.push(getVars(inv.left));
     }
     if (inv.type == SEQ){
-        return some_vars.push(getVars(inv.fst), getVars(inv.snd));
+        return old_vars.push(getVars(inv.fst), getVars(inv.snd));
     }
     if (inv.type == NUM) {
-        return some_vars.push(inv.val);
+        return old_vars.push(inv.val);
     }
 }
 
@@ -222,8 +219,13 @@ function genVC() {
     var prog = eval(document.getElementById("p2input").value);
     var r = wpc(prog, tru());
 
-    writeToConsole("WPC:\n" + r.toString());
-    writeToConsole("\n\nCode to copy and paste into Z3:\n(assert (not " + r.toZ3() + "))" + "\n(check-sat)");
+    writeToConsole("WPC/VC:\n" + r.toString());
+    writeToConsole("\n\nCode to copy and paste into Z3:");
+    new_vars.forEach(function(v){
+        writeToConsole("(declare-fun " + v + "() Int)");
+        
+    });
+    writeToConsole("(assert (not " + r.toZ3() + "))" + "\n(check-sat)");
 }
 
 

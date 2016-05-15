@@ -1,4 +1,4 @@
 Tareas de la materia de Lenguajes de Programación
 Equipo:
 Luis Jafet Ramos Castillo
-Mario Humberto Becerra COntreras
+Mario Humberto Becerra Contreras
