@@ -226,6 +226,8 @@ function genVC() {
         
     });
     writeToConsole("(assert (not " + r.toZ3() + "))" + "\n(check-sat)");
+    old_vars = [];
+    new_vars = [];
 }
 
 
