@@ -30,11 +30,12 @@ block([
   whle(gt(vr('x'), num(0)), 
   block([ and(eq(num(10), plus(vr('x'),vr('t'))), gteq(vr('x'), num(0))) ]), 
   block([ 
-    assgn(vr('x'), plus(vr('x'),num(-1))), 
-    assgn(vr('t'), plus(vr('t'),num(1)))
+    assgn('x', plus(vr('x'),num(-1))), 
+    assgn('t', plus(vr('t'),num(1)))
   ])), 
   assert(eq(vr('t'), num(10)))
 ]);
+    
       </textarea>
       <div class="fakebutton" onclick="interp()">Run Interpreter<code></code></div>
  <textarea id="State" style="width: 400px; height: 30px;">
