@@ -1,0 +1,12 @@
+block([
+  assume(tru()), 
+  assgn('t', num(0)), 
+  assgn('x', num(10)), 
+  whle(gt(vr('x'), num(0)), 
+  block([ and(eq(num(11), plus(vr('x'),vr('t'))), gteq(vr('x'), num(0))) ]), 
+  block([ 
+    assgn('x', plus(vr('x'),num(-1))), 
+    assgn('t', plus(vr('t'),num(1)))
+  ])), 
+  assert(eq(vr('t'), num(10)))
+]);
